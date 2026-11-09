@@ -1,0 +1,103 @@
+/* ==========================================================================
+   Формы: поле, сегмент-переключатель, согласие.
+   Взято из yudaev-landing-static (sections-social.css) без изменений в значениях.
+   ========================================================================== */
+
+.lead-form { display: flex; flex-direction: column; gap: 27px; }
+
+.lead-form__fields { display: flex; flex-direction: column; gap: 8px; }
+
+.field { display: block; }
+
+.field__input {
+    width: 100%;
+    height: 60px;
+    padding: 0 24px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.field__input::placeholder { color: var(--color-navy); opacity: 1; }
+
+/* Фокус поля — лаймовое свечение, без тёмного контура общего :focus-visible:
+   у текстовых полей этот псевдокласс срабатывает и на клик мышью. */
+.field__input:focus-visible {
+    outline: none;
+    background: var(--color-white);
+    box-shadow: 0 0 0 5px rgba(202, 255, 1, 0.45);
+}
+
+.segmented {
+    display: flex;
+    min-width: 0;
+    margin: 0;
+    padding: 7px 8px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+}
+
+.segmented__opt { flex: 1; cursor: pointer; }
+
+.segmented__face {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 46px;
+    border-radius: var(--radius-pill);
+    color: var(--color-navy);
+}
+
+.segmented__face .icon { width: 24px; height: 24px; color: var(--color-text-4); }
+
+.segmented__input:checked + .segmented__face { background: var(--color-white); }
+.segmented__input:checked + .segmented__face .icon { color: var(--color-navy); }
+.segmented__input:focus-visible + .segmented__face { outline: 2px solid var(--color-navy); outline-offset: 2px; }
+
+.lead-form__submit { display: flex; flex-direction: column; gap: 24px; }
+
+/* Два согласия друг под другом: второе — рекламные материалы, необязательное */
+.consents { display: flex; flex-direction: column; gap: 12px; }
+
+.consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: var(--color-muted);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.consent a { color: var(--color-navy); }
+
+.consent__box {
+    position: relative;
+    flex: none;
+    width: 28px;
+    height: 28px;
+    margin: 4px 0 0;
+    border-radius: 50%;
+    background: #e6e7ec;
+    appearance: none;
+    cursor: pointer;
+}
+
+.consent__box:checked { background: var(--color-lime); }
+
+.consent__box:checked::after {
+    content: "";
+    position: absolute;
+    left: 10px;
+    top: 6px;
+    width: 6px;
+    height: 12px;
+    border: solid var(--color-navy);
+    border-width: 0 2px 2px 0;
+    rotate: 45deg;
+}
+
+.consent__text { padding-top: 0; text-wrap: balance; }

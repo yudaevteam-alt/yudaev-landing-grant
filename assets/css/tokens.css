@@ -1,0 +1,133 @@
+/* ==========================================================================
+   Дизайн-токены. Значения сняты с макета Figma (кадры 375 / 1440 / 1920 / 2440).
+   Брейкпоинты (media-query не принимают переменные, значения повторены явно):
+     base   < 768   — мобильный макет (375)
+     md     ≥ 768   — промежуточный режим (макета нет, см. README)
+     lg     ≥ 1200  — десктопная композиция (макет 1440)
+     xl     ≥ 1760  — широкий (макет 1920)
+     xxl    ≥ 2200  — ультра-широкий (макет 2440)
+   ========================================================================== */
+
+:root {
+    /* Цвета */
+    --color-navy: #0c0a1f;
+    --color-ink: #1b1b1b;
+    --color-white: #ffffff;
+    --color-lime: #caff01;
+    --color-lime-soft: #caff01;
+    --color-surface: #eaedf1;
+    --color-surface-2: #e2e2e9;
+    --color-mint: #eafbff;
+    --color-text-2: #444444;
+    --color-text-3: #6f6f6f;
+    --color-text-4: #85848f;
+    --color-text-5: #898996;
+    --color-muted: rgba(12, 10, 31, 0.6);
+    --color-muted-2: rgba(12, 10, 31, 0.5);
+    --color-line: rgba(12, 10, 31, 0.1);
+    --color-line-strong: rgba(12, 10, 31, 0.3);
+    --color-on-dark: #ffffff;
+    --color-on-dark-60: rgba(255, 255, 255, 0.6);
+    --color-on-dark-40: rgba(255, 255, 255, 0.4);
+
+    /* Нейтральные заглушки вместо изображений (этап 1) */
+    --color-ph: #d9dce3;
+    --color-ph-mid: #b8bdc9;
+    --color-ph-dark: #34344a;
+    --color-ph-light: #eceef2;
+
+    /* Шрифт: Inter для заголовков и текста (по решению заказчика вместо HelveticaNeueCyr).
+       "Inter Web" — самохостинг (assets/css/fonts.css), "Inter" — системный, если установлен. */
+    --font-display: "Inter Web", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --font-text: var(--font-display);
+    --tracking: -0.03em;           /* межбуквенный интервал текста: -3% */
+    --tracking-heading: -0.04em;   /* заголовки и подзаголовки: Inter Medium, -4% */
+
+    /* Отступы */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+    --space-20: 80px;
+    --space-25: 100px;
+
+    /* Радиусы */
+    --radius-pill: 64px;
+    --radius-xl: 48px;
+    --radius-lg: 40px;
+    --radius-md: 32px;
+    --radius-sm: 24px;
+    --radius-xs: 16px;
+
+    /* Адаптивные токены: значения мобильного макета (375) */
+    --page-gap: 8px;
+    --page-inset: 0px;
+    --gutter: 20px;          /* боковой отступ текста внутри секции */
+    --gutter-outer: 20px;    /* боковой отступ шапки/hero/футера */
+    --card-inset: 8px;       /* отступ карточек от края секции */
+    --container-max: 1520px;
+    /* Единая сетка десктопа: контейнер по центру (от --gutter-outer до края, не шире --container-max), 12 колонок, зазор 20px.
+       Левый край контента — --frame (в px от края секции); правая «половина» (FAQ, форма, футер) всегда начинается с 7-й колонки. */
+    --grid-gap: 20px;
+    --section-radius: 36px;
+    --tile-radius: 32px;     /* плитки/карточки внутри секций */
+    --card-radius: 36px;     /* крупные карточки внутри секций */
+
+    --fs-hero: 34px;
+    --fs-h2: 32px;
+    --fs-body: 14px;
+    --fs-caption: 12px;
+    --lh-body: 1.3;
+}
+
+@media (min-width: 768px) {
+    :root {
+        --gutter: 32px;
+        --gutter-outer: 32px;
+        --card-inset: 16px;
+        --fs-hero: 44px;
+        /* линейная интерполяция 32px@375 → 50px@1440 */
+        --fs-h2: clamp(32px, 25.66px + 1.69vw, 50px);
+    }
+}
+
+@media (min-width: 1200px) {
+    :root {
+        --page-gap: 10px;
+        --page-inset: 10px;
+        --gutter: 54px;        /* 64px от края страницы минус 10px отступ секции */
+        --gutter-outer: 64px;
+        --card-inset: 0px;
+        --section-radius: 64px;
+        --tile-radius: 48px;
+        --card-radius: 48px;
+        --fs-hero: 58px;
+    }
+}
+
+@media (min-width: 1760px) {
+    :root {
+        --fs-h2: 56px;
+    }
+}
+
+/* 1760–1920 (макет 1920): боковые поля контента на 50% больше. Было: поле = (ширина − 1520) / 2, стало: 1,5 × это поле,
+   т.е. контейнер = 2280px − 50vw (на 1920 это 1320px, поле 300px вместо 200px). Выше 1920 действует общий масштаб ×1,2. */
+@media (min-width: 1760px) and (max-width: 1920.98px) {
+    :root {
+        --container-max: calc(2280px - 50vw);
+    }
+}
+
+/* ≥1920: вертикальные отступы внутри блоков +20% (множитель применяется в sections-*.css) */
+@media (min-width: 1920px) {
+    :root {
+        --pad-k: 1.2;
+    }
+}

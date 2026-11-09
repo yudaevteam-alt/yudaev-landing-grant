@@ -1,0 +1,11 @@
+# служебные файлы
+node_modules/
+_site/
+*.log
+
+# мусор систем и редакторов
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.orig

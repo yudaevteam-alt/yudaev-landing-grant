@@ -1,0 +1,1340 @@
+/* ==========================================================================
+   Лендинг «Грант» — стили страницы. Значения сняты с макета Figma (файл edrQskKZyqRsAnQDu9XPQt, секция «Грант» 27:4):
+   десктоп — кадр 1440 (27:5), мобильный — кадр 375 (27:286).
+   Брейкпоинты те же, что в yudaev-landing-static (tokens.css): base < 768 — мобильный макет, 768–1199 — промежуточный
+   (мобильная раскладка в карточке до 720 px), ≥ 1200 — десктопная композиция.
+   Цвета, радиусы, отступы, шрифт и компоненты (.btn, .field, .consent) — из tokens.css / components.css / forms.css.
+   ========================================================================== */
+
+:root {
+    /* В макете «Грант» зелёный — #CFFF32 (в tokens.css общего сайта — #CAFF01). Переопределён здесь, чтобы страница совпадала с макетом;
+       вернуть бренд-зелёный сайта — удалить две строки ниже и поправить rgba(207, 255, 50, …) в motion.css. */
+    --color-lime: #cfff32;
+    --color-lime-soft: #cfff32;
+
+    --page-inset: 0px;           /* в макете «Грант» секции идут от края до края (в tokens.css на ≥1200 — 10px) */
+    --text-grey: #686868;
+    --card-soft: #eff1f3;        /* светлая подложка карточек шагов */
+    --glass: rgba(255, 255, 255, 0.1);
+    --grid-max: 1520px;   /* максимальная ширина контента на десктопе (как --container-max в static); на 1440 поля остаются 64px */
+    --zoom: 1;   /* масштаб body (base.css): 1.2 на окнах шире 1920 */
+}
+
+@media (min-width: 1921px) {
+    :root { --zoom: 1.2; }
+}
+
+/* ---------- Каркас страницы ---------- */
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--page-gap);
+}
+
+.footer { margin-top: var(--page-gap); }
+
+/* Перенос строки только на мобильном и планшете (br.br-lg из base.css — только десктоп) */
+br.br-m { display: inline; }
+@media (min-width: 1200px) { br.br-m { display: none; } }
+
+.t-lg { display: none; }
+@media (min-width: 1200px) { .t-lg { display: inline; } .t-m { display: none; } }
+
+/* Белая карточка-секция. Мобильный: радиус 36, внутри отступ 8 (карточки внутри — 359 из 375) */
+.card {
+    background: var(--color-white);
+    border-radius: var(--section-radius);
+    overflow: clip;
+}
+
+/* Фонд + «как получить» + заявка: на мобильном три отдельные карточки, на десктопе одна белая */
+.sheet { display: contents; }
+
+@media (min-width: 768px) and (max-width: 1199.98px) {
+    .page > .hero,
+    .page > .rules,
+    .sheet > .card,
+    .footer {
+        width: min(100% - var(--card-inset) * 2, 720px);
+        align-self: center;
+        margin-inline: auto;
+    }
+}
+
+@media (min-width: 1200px) {
+    .sheet {
+        container-type: inline-size;
+        display: flex;
+        flex-direction: column;
+        gap: 100px;
+        padding: 80px max(64px, calc((100% - var(--grid-max)) / 2));
+        background: var(--color-white);
+        border-radius: var(--section-radius);
+    }
+
+    .sheet > :is(.fund, .steps) { background: none; border-radius: 0; overflow: visible; }
+}
+
+/* Ссылки-заглушки (адреса ещё не заданы) выглядят как обычный текст и не кликаются; когда появятся адреса — уберите aria-disabled */
+a[aria-disabled="true"] { pointer-events: none; cursor: default; }
+
+/* ---------- Кнопки: размеры макета ---------- */
+.btn__label { flex: 1; text-align: center; }
+.btn__arrow { flex: none; width: 43px; height: 43px; }
+
+/* Мобильный: кнопка на всю ширину, подпись по центру, круг справа (отступ 6) */
+.btn--lg,
+.btn--xl {
+    width: 100%;
+    height: 56px;
+    padding: 6px;
+    gap: 16px;
+    font-size: 16px;
+    letter-spacing: -0.04em;
+}
+
+.btn--xl { height: 64px; padding: 6px 6px 6px 20px; font-size: 18px; letter-spacing: -0.04em; }
+
+@media (min-width: 1200px) {
+    .btn--lg { width: auto; padding: 6px 6px 6px 20px; }
+    .btn--lg .btn__label { flex: none; }
+}
+
+/* ==========================================================================
+   1. Первый экран
+   Мобильный: визуал (логотип, сумма, карточки) масштабируется от ширины блока (u = 1/375 ширины), ниже — текст и кнопка.
+   Десктоп: композиция 1440×800 вписывается в окно: u = min(ширина/1440, высота/800). Блок занимает весь экран (высота окна,
+   не меньше 560px); если окно по пропорциям «выше» макета, лишнее место забирает промежуток между заголовком и текстом внизу.
+   Мобильный блок — по макету 375×649, на всю высоту окна не растягивается.
+   ========================================================================== */
+.hero {
+    container-type: inline-size;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-radius: 32px;
+    overflow: clip;
+    color: var(--color-white);
+    background: #fff url("../img/hero/m-bg.webp") 0 0 / 100% 100% no-repeat;
+}
+
+.hero__stage {
+    --u: calc(100cqw / 375);
+    position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.hero__logo {
+    position: absolute;
+    z-index: 2;
+    left: 20px;
+    top: 20px;
+    display: block;
+}
+
+.hero__logo-d { display: none; }
+
+.hero__logo-m { position: relative; display: block; width: 163.5px; height: 20px; }
+.hero__logo-mark { position: absolute; left: 0; top: 0; width: 22.09px; height: 19.99px; }
+.hero__logo-text { position: absolute; left: 29.2px; top: 3.32px; width: 134.34px; height: 11.64px; }
+
+.hero__tagline { display: none; }
+
+.hero__visual {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: calc(361 * var(--u));
+    pointer-events: none;
+}
+
+/* Крупная сумма: градиентная заливка текстом. Размер подогнан под ширину макета (Inter шире HelveticaNeueCyr). */
+.hero__sum {
+    position: absolute;
+    left: calc(20 * var(--u));
+    bottom: calc(1.4 * var(--u));
+    margin: 0;
+    font-size: calc(58 * var(--u));
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    white-space: nowrap;
+    color: transparent;
+    background-image:
+        linear-gradient(-88.87deg, rgba(207, 255, 50, 0) 50%, #cfff32 93%),
+        linear-gradient(1.19deg, rgba(207, 255, 50, 0) 5.05%, #cfff32 94.95%);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+.hero__ruble { font-weight: 500; }
+
+/* Копия суммы поверх стекла карточек: «свечение» цифр сквозь прозрачные карточки.
+   Невидимые куски нужны только для совпадения позиции с основной суммой. */
+.hero__sum--glow { opacity: 0.3; }
+.hero__sum-skip { visibility: hidden; }
+
+.hero__cards {
+    position: absolute;
+    left: calc(37.5 * var(--u));
+    bottom: calc(52.62 * var(--u));
+    width: calc(310.9 * var(--u));
+    height: calc(246.31 * var(--u));
+    object-fit: contain;
+    /* Нижний край карточек уходит в сумму: маска из макета (градиент по альфе) */
+    -webkit-mask-image: linear-gradient(to bottom, #000 58.6%, transparent 94%);
+    mask-image: linear-gradient(to bottom, #000 58.6%, transparent 94%);
+}
+
+.hero__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 0 20px 21px;
+}
+
+.hero__title {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+}
+
+.hero__badge {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 6px;
+    height: 28px;
+    padding: 0 12px 0 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    line-height: 1.3;
+    letter-spacing: -0.04em;
+    white-space: nowrap;
+}
+
+.hero__badge-icon {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-lime);
+}
+
+.hero__badge-icon img { width: 12px; height: 12px; }
+
+/* заголовок и плашка — один блок: между ними 12px (мобильный) / 24px (десктоп) */
+.hero__title + .hero__badge { margin-top: -12px; }
+
+.hero__lead {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+}
+
+.hero__btn { margin: 0; }
+
+@media (min-width: 1200px) {
+    .hero {
+        --hero-h: max(560px, calc(100vh / var(--zoom)));
+        display: block;
+        height: var(--hero-h);
+        min-height: 0;
+        border-radius: 0 0 var(--section-radius) var(--section-radius);
+        background: #2a5aa3 url("../img/hero/d-overlay.webp") center / cover no-repeat;
+    }
+
+    .hero__stage {
+        /* u — масштаб размеров (не больше 1: выше 1440 композиция не растёт); --edge — край контейнера, общий для всей страницы */
+        --u: min(1px, calc(100cqw / 1440), calc(var(--hero-h) / 800));
+        --edge: max(64px, calc((100cqw - var(--grid-max)) / 2));
+        /* сумма от края до края контейнера (но не выше, чем позволяет высота окна); 235.3u — её размер в макете (контейнер 1312) */
+        --sum-fs: min(calc((100cqw - 2 * var(--edge)) / 5.576), calc(var(--grid-max) / 5.576), calc(var(--hero-h) * 0.3407));
+        /* карточки растут вместе с контейнером (в макете 856px при контейнере 1312 = 65.24%) и сжимаются на низком окне */
+        --cards-w: min(calc((100cqw - 2 * var(--edge)) * 0.6524), calc(var(--grid-max) * 0.6524), calc(var(--hero-h) * 1.2396));
+        --sum-shift: calc((var(--sum-fs) - 235.3 * var(--u)) * 0.8);   /* на сколько сумма крупнее макетной: заголовок и плашка опускаются на столько же */
+        display: block;
+        flex: none;
+        width: 100%;
+        height: 100%;
+    }
+
+    .hero__logo { left: var(--edge); top: calc(38 * var(--u)); }
+    .hero__logo-d { display: block; width: calc(187 * var(--u)); height: auto; }
+    .hero__logo-m { display: none; }
+
+    .hero__tagline {
+        position: absolute;
+        right: var(--edge);
+        top: calc(33 * var(--u));
+        display: block;
+        width: calc(283 * var(--u));
+        margin: 0;
+        font-size: calc(13 * var(--u));
+        line-height: 1.35;
+        letter-spacing: -0.02em;
+        text-align: right;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .hero__visual { position: absolute; inset: 0; height: auto; }
+
+    .hero__sum {
+        /* сумма от левого до правого края контейнера (контур первой «1» — ровно по краю); на низком окне уменьшается вместе с u */
+        left: calc(var(--edge) - 0.049em);
+        top: calc(108 * var(--u));
+        bottom: auto;
+        font-size: var(--sum-fs);
+        letter-spacing: -0.06em;
+        background-image:
+            linear-gradient(-88.87deg, rgba(207, 255, 50, 0) 50%, #cfff32 93%),
+            linear-gradient(1.19deg, rgba(207, 255, 50, 0) 5.05%, #cfff32 94.95%);
+    }
+
+    .hero__sum--glow { opacity: 0.33; filter: blur(calc(6.3 * var(--u))); }
+
+    .hero__cards {
+        left: auto;
+        right: calc(var(--edge) - var(--cards-w) * 0.03388);
+        top: auto;
+        bottom: calc(var(--cards-w) * -0.03855);
+        width: var(--cards-w);
+        height: calc(var(--cards-w) * 0.7931);
+        object-fit: cover;
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+
+    .hero__content { position: static; display: block; padding: 0; }
+
+    .hero__title {
+        position: absolute;
+        left: var(--edge);
+        top: calc(342 * var(--u) + var(--sum-shift));
+        width: calc(478 * var(--u));
+        margin: 0;
+        font-size: calc(48 * var(--u));
+        line-height: 1;
+        letter-spacing: -0.04em;
+    }
+
+    .hero__badge,
+    .hero__title + .hero__badge {
+        position: absolute;
+        left: var(--edge);
+        top: calc(462 * var(--u) + var(--sum-shift));
+        margin: 0;
+        gap: 6.9px;
+        height: 32.25px;
+        padding: 0 13.8px 0 4.6px;
+        border-width: 1.15px;
+        font-size: 13.82px;
+    }
+
+    .hero__badge-icon { width: 23px; height: 23px; }
+    .hero__badge-icon img { width: 13px; height: 13px; }
+
+    .hero__lead {
+        position: absolute;
+        left: var(--edge);
+        bottom: calc(100.2 * var(--u) + 56px);
+        width: calc(571 * var(--u));
+        font-size: 16px;
+        letter-spacing: -0.02em;
+    }
+
+    /* .hero .hero__btn: специфичнее, чем .btn { position: relative } из motion.css */
+    .hero .hero__btn { position: absolute; left: var(--edge); bottom: calc(62.5 * var(--u)); }
+}
+
+/* ==========================================================================
+   2. Фонд
+   ========================================================================== */
+.fund {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 40px 8px 8px;
+}
+
+.fund__head {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 12px;
+}
+
+.fund__title {
+    font-size: 28px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    text-wrap: wrap;   /* переносы как в макете, без выравнивания строк по длине */
+}
+
+.fund__lead {
+    font-size: 14px;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    color: var(--text-grey);
+}
+
+/* Мобильный порядок: картинка → панель с остатком → кнопка. .fund-hero «растворяется», его дети встают в общий столбец */
+.fund__grid { display: flex; flex-direction: column; gap: 12px; }
+.fund-hero { display: contents; }
+.fund-hero__art { order: 1; }
+.fund-panel { order: 2; }
+.fund-hero__btn { order: 3; }
+
+.fund-hero__art {
+    position: relative;
+    aspect-ratio: 359 / 225;
+    border-radius: var(--card-radius);
+    overflow: hidden;
+}
+
+.fund-hero__img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fund-hero__img--d { display: none; }
+.fund-hero__img--m { object-fit: cover; }
+.fund-hero__img--top { object-fit: fill; }   /* в макете верхний слой растянут на весь блок */
+
+/* Панель «В фонде осталось» */
+.fund-panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: 24px;
+    border-radius: var(--card-radius);
+    overflow: clip;
+    color: var(--color-white);
+    background:
+        linear-gradient(128.75deg, rgb(34, 80, 141) 1.94%, rgba(22, 62, 118, 0) 63.63%),
+        url("../img/bg/blue.webp") 50% 0 / 117.6% 134.94% no-repeat,
+        var(--card-soft);
+}
+
+.fund-panel__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 24px;
+    padding: 0 12px;
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    color: #000;
+}
+
+.chip--live { padding-left: 8px; background: var(--color-lime); }
+.chip__dot { width: 6px; height: 6px; border-radius: 50%; background: #000; }
+.chip--white { background: var(--color-white); }
+
+.fund-panel__sum { display: flex; flex-direction: column; gap: 16px; }
+
+.fund-panel__row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    color: rgba(255, 255, 255, 0.7);
+    white-space: nowrap;
+}
+
+/* «Табло»: каждая цифра — карточка-перекидка. Размеры внутри ячейки считаются от её ширины (cqw),
+   поэтому при 8–9 ячейках (10 млн и выше) всё сжимается пропорционально. */
+.flip {
+    --G: 8px;            /* зазор между группами цифр */
+    --g: 1.546px;        /* зазор между цифрами внутри группы */
+    --cap: 9999px;       /* потолка нет: ячейки делят всю ширину табло поровну (--cells и --groups ставит fund.js) */
+    --cells: 9;
+    --groups: 4;
+    container-type: inline-size;
+    display: flex;
+    align-items: center;
+    gap: var(--G);
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.flip__group { display: flex; flex: none; gap: var(--g); }
+
+.flip__cell {
+    position: relative;
+    flex: none;
+    width: min(var(--cap), calc((100cqw - (var(--groups) - 1) * var(--G) - (var(--cells) - var(--groups)) * var(--g)) / var(--cells)));
+    aspect-ratio: 65.239 / 87.822;
+    container-type: inline-size;
+    border: 0.537px solid rgba(0, 0, 0, 0.55);
+    border-radius: 27.6% / 20.5%;   /* 18px при ячейке 65×88; cqw здесь нельзя: у самого контейнера он считается от родителя */
+    background: var(--color-white);
+    box-shadow:
+        2.244px 2.244px 24.689px rgba(0, 0, 0, 0.15),
+        inset -1.347px 1.796px 24.689px rgba(0, 0, 0, 0.1),
+        inset -1.347px 1.796px 3.142px rgba(0, 0, 0, 0.25);
+    color: #000;
+}
+
+/* линия-перегиб посередине */
+.flip__cell::before {
+    content: "";
+    position: absolute;
+    left: 1.3%;
+    right: 1.3%;
+    top: calc(50% - 0.1px);
+    height: 0.45px;
+    background: rgba(0, 0, 0, 0.25);
+}
+
+/* боковые «засечки» механизма */
+.flip__cell::after {
+    content: "";
+    position: absolute;
+    right: -0.45px;
+    top: 33.8%;
+    width: 0.45px;
+    height: 31.4%;
+    border-radius: 0 10.8px 10.8px 0;
+    background: #656565;
+}
+
+.flip__cell b {
+    position: absolute;
+    inset: 0;
+    display: block;
+    padding-top: 23.8cqw;   /* строка (lh 1) центрируется по высоте ячейки: цифры Inter сидят в её середине */
+    font-size: 90cqw;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0;      /* отрицательный интервал смещал одиночную цифру вправо */
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.flip__cell b::before {
+    content: "";
+    position: absolute;
+    left: -0.45px;
+    top: 33.8%;
+    width: 0.45px;
+    height: 31.4%;
+    border-radius: 10.8px 0 0 10.8px;
+    background: #656565;
+}
+
+/* Полоса остатка: заливка — translate (двигается только композитором) */
+.meter {
+    height: 12px;
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+}
+
+.meter__fill {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-pill);
+    background: var(--color-lime);
+    translate: calc((var(--p, 0.75) - 1) * 100%) 0;
+}
+
+.countdown { display: flex; flex-direction: column; gap: 12px; }
+
+.countdown__label {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.countdown__tiles { display: flex; gap: 4px; }
+
+.countdown__tile {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 0;
+    padding: 16px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(27.5px);
+    backdrop-filter: blur(27.5px);
+}
+
+.countdown__tile b {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+}
+
+.countdown__tile span {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.fund-hero__btn { width: 100%; }
+
+@media (min-width: 1200px) {
+    .fund { display: block; padding: 0; }
+
+    .fund__head {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+        min-height: 102px;
+        padding: 0;
+    }
+
+    .fund__title { flex: none; font-size: min(46px, 3.2vw); line-height: 1.1; letter-spacing: -0.04em; }   /* на 1200–1440 уже, чтобы не упираться в подпись */
+
+    .fund__lead {
+        flex: 0 0 calc(50% - 5px);   /* правая половина сетки: начинается там же, где правая панель, форма, правила и колонки подвала */
+        min-width: 0;
+        margin-top: 28px;
+        font-size: 16px;
+        color: rgba(12, 10, 31, 0.7);
+    }
+
+    .fund__grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        height: max(538px, calc(100cqw * 0.41006));   /* пропорции макета 1312×538: персонаж не растягивается на широком контейнере */
+        margin-top: 48px;
+    }
+
+    .fund-panel { order: 0; gap: 0; justify-content: space-between; padding: 40px; border-radius: 48px; background:
+        linear-gradient(135.43deg, rgb(34, 80, 141) 1.94%, rgba(22, 62, 118, 0) 63.63%),
+        url("../img/bg/blue.webp") 50% 0 / 117.6% 134.94% no-repeat,
+        var(--card-soft); }
+
+    .fund-hero {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 32px;
+        border-radius: 48px;
+        overflow: clip;
+        background: #e8e8ef;
+    }
+
+    .fund-hero__art { position: absolute; inset: 0; order: 0; aspect-ratio: auto; border-radius: 0; }
+    .fund-hero__img--d { display: block; object-fit: fill; }
+    .fund-hero__img--m { display: none; }
+    .fund-hero__btn { position: relative; order: 0; }
+
+    .fund-panel__sum { gap: 16px; }
+    .fund-panel__row { font-size: 14px; }
+
+    .flip { --G: 11.52px; --g: 2.88px; margin-bottom: 8px; }
+    .flip__cell { border-width: 1px; box-shadow:
+        4.182px 4.182px 46.002px rgba(0, 0, 0, 0.15),
+        inset -2.509px 3.346px 46.002px rgba(0, 0, 0, 0.1),
+        inset -2.509px 3.346px 5.855px rgba(0, 0, 0, 0.25); }
+    .flip__cell::before { height: 0.84px; top: calc(50% - 0.4px); }
+    .flip__cell::after,
+    .flip__cell b::before { width: 0.84px; }
+    .flip__cell::after { right: -0.84px; }
+    .flip__cell b::before { left: -0.84px; }
+
+    .meter { height: 16px; }
+
+    .countdown__tiles { gap: 8px; }
+    .countdown__tile { height: 111px; padding: 24px 26px; border-radius: 24px; }
+    .countdown__tile b { font-size: 40px; }
+    .countdown__tile span { font-size: 14px; }
+}
+
+/* ==========================================================================
+   3. Как получить грант
+   ========================================================================== */
+.steps {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding: 40px 8px 8px;
+}
+
+.steps__title {
+    padding: 0 12px;
+    font-size: 28px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+
+.steps__list { display: flex; flex-direction: column; gap: 10px; }
+
+.step {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 40px;
+    padding: 24px;
+    border-radius: var(--card-radius);
+    overflow: clip;
+}
+
+.step--1 { min-height: 450px; background: var(--card-soft) url("../img/steps/m-1-b.webp") center bottom / 100% 100% no-repeat; }
+.step--2 {
+    min-height: 482px;
+    border: 0.589px solid rgba(255, 255, 255, 0.2);
+    background:
+        url("../img/steps/m-2-b.webp") center bottom / 100% 100% no-repeat,
+        url("../img/steps/m-2-a.webp") 45.84% 100% / 159.44% 88.39% no-repeat,
+        linear-gradient(179.69deg, rgb(228, 232, 237) 3.51%, rgb(243, 244, 245) 81.41%);
+}
+.step--3 { min-height: 481px; background: var(--color-lime) url("../img/steps/3-bg.webp") center bottom / 100% 100% no-repeat; }
+
+.step__top { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+
+.step__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 12px 0 4px;
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    border-radius: 60px;
+    background: #09070f;
+    font-size: 14px;
+    line-height: 1.2;
+    letter-spacing: -0.04em;
+    color: var(--color-white);
+    filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.05));
+}
+
+.step__badge i {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border: 0.7px solid rgba(255, 255, 255, 0.3);
+    border-radius: 30px;
+    background: radial-gradient(ellipse 60% 70% at 55% 100%, #f9f6ff, rgba(255, 255, 255, 0)), #fff;
+    font-size: 10px;
+    font-style: normal;
+    line-height: 1.3;
+    letter-spacing: -0.04em;
+    color: #09070f;
+}
+
+.step__title {
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-navy);
+}
+
+.step__title-m { display: inline; }
+.step__title-d { display: none; }
+
+.step__text {
+    font-size: 14px;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    color: rgba(12, 10, 31, 0.7);
+}
+
+.step--3 .step__text { color: rgba(0, 0, 0, 0.6); }
+
+/* Планшет (768–1199): три узкие карточки в ряд — картинки шагов остаются в пропорциях мобильного макета */
+@media (min-width: 768px) and (max-width: 1199.98px) {
+    .steps__list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .step { min-height: 480px; padding: 20px; }
+    .step__title { font-size: 22px; }
+    .step__text { font-size: 13px; }
+
+    .step--1,
+    .step--3 { background-size: cover; }
+
+    .step--2 {
+        background:
+            url("../img/steps/m-2-b.webp") center bottom / cover no-repeat,
+            url("../img/steps/m-2-a.webp") center bottom / cover no-repeat,
+            linear-gradient(179.69deg, rgb(228, 232, 237) 3.51%, rgb(243, 244, 245) 81.41%);
+    }
+
+    .fund-hero__img--top { object-fit: cover; object-position: bottom; }
+}
+
+@media (min-width: 1200px) {
+    .steps { display: block; padding: 0; }
+
+    .steps__title { padding: 0; font-size: 46px; line-height: 1.2; letter-spacing: -0.04em; }
+
+    .steps__list {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        height: max(577px, calc(100cqw * 0.43979));   /* 1312×577 */
+        margin-top: 48px;
+    }
+
+    .step { min-height: 0; padding: 32px; border-radius: 48px; }
+
+    .step--1 { background: var(--card-soft) url("../img/steps/d-1-bg.webp") center bottom / 100% 100% no-repeat; }
+    .step--2 {
+        background:
+            url("../img/steps/d-2-bg-b.webp") center bottom / 100% 100% no-repeat,
+            url("../img/steps/d-2-bg-a.webp") 53.77% 15.21% / 143.59% 118.01% no-repeat,
+            var(--card-soft);
+    }
+
+    .step__top { gap: 24px; }
+
+    .step__badge { height: auto; gap: 10px; padding: 5px 15px 5px 5px; font-size: 16px; }
+    .step__badge i { width: 28px; height: 28px; font-size: 14px; }
+
+    .step__title { font-size: 32px; letter-spacing: -0.02em; }
+    .step__title-d { display: inline; }
+    .step__title-m { display: none; }
+
+    .step__text { font-size: 16px; }
+}
+
+/* ==========================================================================
+   4. Заявка
+   ========================================================================== */
+.cta {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: 32px 8px 8px;
+    color: var(--color-white);
+    background: var(--color-navy) url("../img/bg/blue.webp") 50% 0 / 117.6% 189.61% no-repeat;
+}
+
+.cta__info { display: flex; flex-direction: column; gap: 24px; }
+
+.cta__text { display: flex; flex-direction: column; gap: 12px; padding: 0 12px; }
+
+.cta__title {
+    font-size: 28px;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    color: var(--color-white);
+}
+
+.cta__lead {
+    font-size: 12px;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.cta-fund {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin: 0 12px;
+    padding: 20px;
+    border-radius: var(--radius-sm);
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(27.5px);
+    backdrop-filter: blur(27.5px);
+}
+
+.cta-fund__head { display: flex; flex-direction: column; gap: 4px; }
+.cta-fund__label { display: none; }
+
+.cta-fund__sum {
+    font-size: 40px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+}
+
+.cta-fund__total {
+    font-size: 18px;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.meter--thin { height: 9.75px; }
+
+.cta__formcard {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px 16px 12px;
+    border-radius: var(--radius-md);
+    background: var(--color-white);
+    color: var(--color-navy);
+}
+
+.cta__formtitle {
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+}
+
+/* Форма в макете «Грант»: поля 52px, текст 15px, подсказка — 50% */
+.lead-form--g { gap: 24px; }
+.lead-form--g .lead-form__fields { gap: 12px; }
+
+.lead-form--g .field__input {
+    height: 52px;
+    padding: 0 20px;
+    font-size: 15px;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+}
+
+.lead-form--g .field__input::placeholder { color: rgba(12, 10, 31, 0.5); }
+
+/* Согласие: серый круг → лайм с галочкой из макета */
+.consent--g { align-items: center; gap: 8px; font-size: 12px; line-height: 1.3; letter-spacing: -0.04em; color: #6a6a6a; }
+.consent--g b,
+.consent--g a { font-weight: 500; color: var(--color-navy); text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 2px; transition: text-decoration-color 0.2s ease; }
+.consent--g a:hover { text-decoration-color: currentColor; }
+
+.consent--g .consent__box {
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    background: #eaeaf0 center / 24px 24px no-repeat;
+}
+
+.consent--g .consent__box:checked { background-color: var(--color-lime); background-image: url("../img/icons/check.svg"); }
+.consent--g .consent__box:checked::after { content: none; }
+
+.cta .consent--g { margin-top: 16px; }
+
+.cta__btn { width: 100%; height: 60px; padding: 6px 8px; font-size: 14px; letter-spacing: -0.04em; }
+
+.form-status { min-height: 0; font-size: 12px; line-height: 1.3; color: var(--color-muted); }
+.form-status:empty { display: none; }
+.form-status.is-ok { color: #2f7d17; }
+.form-status.is-error { color: #c0322d; }
+
+@media (min-width: 1200px) {
+    .cta {
+        display: grid;
+        grid-template-columns: calc(50% + 5px) 1fr;   /* форма стартует на линии правой половины (поле блока 40px уже учтено) */
+        gap: 0;
+        height: 502px;
+        padding: 40px;
+        border-radius: 48px;
+        background:
+            linear-gradient(169.82deg, rgb(34, 80, 141) 1.66%, rgba(22, 62, 118, 0) 42.91%),
+            url("../img/bg/blue.webp") 50% 0 / 117.6% 137.09% no-repeat,
+            var(--color-lime);
+    }
+
+    .cta__info { justify-content: space-between; gap: 0; padding-top: 34px; padding-right: 40px; }   /* 40px между плашкой с остатком и формой */
+
+    .cta__text { width: 431px; gap: 16px; padding: 0; }
+    .cta__title { font-size: 44px; line-height: 1; letter-spacing: -0.04em; }
+    .cta__lead { font-size: 14px; }
+
+    .cta-fund { container-type: inline-size; gap: 32px; margin: 0; padding: 32px; }
+
+    /* высота блока 76px, как в макете: подпись сверху, под ней сумма и сразу за ней «/ 11 000 000 ₽» (при 8 цифрах не налезает) */
+    .cta-fund__head {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: baseline;
+        align-content: flex-start;
+        gap: 8px 10px;
+        height: 76px;
+    }
+
+    .cta-fund__label {
+        display: block;
+        flex: 0 0 100%;
+        font-size: 14px;
+        line-height: 1.35;
+        letter-spacing: -0.02em;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .cta-fund__sum { font-size: min(64px, calc((100cqw - 130px) / 6.2)); }
+    .meter--thin { height: 16px; }
+
+    .cta__formcard { align-self: start; gap: 32px; padding: 40px; border-radius: 32px; }
+    .cta__formtitle { font-size: 36px; line-height: 1; letter-spacing: -0.03em; }
+
+    .lead-form--g { gap: 32px; }
+    .lead-form--g .lead-form__fields { gap: 12px; }
+    .cta .consent--g { margin-top: -22px; }
+    .consent--g { gap: 6px; letter-spacing: -0.015em; color: rgba(12, 10, 31, 0.6); }
+    .consent--g b,
+    .consent--g a { color: var(--color-navy); }
+
+    .cta__btn { width: auto; align-self: flex-start; height: 56px; padding: 6px 6px 6px 20px; font-size: 16px; }
+    .cta__btn .btn__label { flex: none; }
+}
+
+/* ==========================================================================
+   5. Правила
+   ========================================================================== */
+.rules { padding: 40px 8px 39px; }
+
+.rules__title {
+    padding: 0 12px;
+    font-size: 28px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+
+.rules__cols { display: flex; flex-direction: column; margin-top: 10px; }
+.rules__col { display: flex; flex-direction: column; }
+
+.rule {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 12px 15px;
+}
+
+/* разделитель между правилами (мобильный): отступ 9px от краёв карточки */
+.rule::after {
+    content: "";
+    position: absolute;
+    left: 9px;
+    right: 9px;
+    bottom: 0;
+    height: 1px;
+    background: rgba(12, 10, 31, 0.1);
+}
+
+.rule i {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--color-surface);
+    font-size: 14px;
+    font-style: normal;
+    line-height: 1.4;
+    letter-spacing: -0.03em;
+    color: rgba(12, 10, 31, 0.5);
+}
+
+.rule p {
+    font-size: 12px;
+    line-height: 1.4;
+    letter-spacing: -0.03em;
+    color: var(--color-navy);
+}
+
+@media (min-width: 1200px) {
+    .rules { padding: 80px max(64px, calc((100% - var(--grid-max)) / 2)); }
+
+    .rules__title { padding: 0; font-size: 44px; line-height: 1.2; letter-spacing: -0.04em; }
+
+    .rules__cols {
+        display: grid;
+        grid-template-columns: calc(50% - 28px) 1px 1fr;   /* 628 + 16 + 1 + 16 = 661: правая колонка на линии правой половины */
+        column-gap: 16px;
+        margin-top: 48px;
+    }
+
+    .rules__cols::before {
+        content: "";
+        grid-column: 2;
+        grid-row: 1;
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .rules__col:first-child { grid-column: 1; grid-row: 1; }
+    .rules__col:last-child { grid-column: 3; grid-row: 1; }
+
+    .rule { padding: 20px 0; }
+    .rule::after { content: none; }
+    .rule p { font-size: 14px; }
+}
+
+/* ==========================================================================
+   6. Подвал
+   ========================================================================== */
+.footer {
+    border-radius: var(--section-radius);
+    background: var(--color-navy);
+    color: var(--color-white);
+    overflow: clip;
+}
+
+.footer__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding: 32px 20px;
+}
+
+.footer__top,
+.footer__bottom,
+.footer__legal,
+.footer__brand { display: contents; }
+
+.footer__mark {
+    order: 1;
+    display: grid;
+    place-items: center;
+    width: 104.9px;
+    height: 101.2px;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(30px);
+    backdrop-filter: blur(30px);
+    box-shadow: 0 5.8px 21.7px rgba(0, 0, 0, 0.1);
+}
+
+.footer__mark img { width: 40.91px; height: 37.19px; }
+
+.footer__slogan {
+    order: 1;
+    margin-top: -8px;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+}
+
+.footer__rule {
+    order: 2;
+    width: 100%;
+    height: 1px;
+    margin: 0;
+    border: 0;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.footer__cols { order: 3; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.footer__col { display: flex; flex-direction: column; gap: 16px; }
+.footer__contacts { gap: 32px; }
+.footer__block { display: flex; flex-direction: column; gap: 16px; }
+
+.footer__head {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: -0.04em;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.footer__head--strong { font-weight: 600; line-height: 1.4; }
+
+.footer__links { display: flex; flex-direction: column; gap: 8px; font-size: 12px; line-height: 1.3; }
+
+.footer__links a {
+    font-size: inherit;
+    white-space: nowrap;
+    line-height: 1.3;
+    letter-spacing: -0.04em;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.chip--glass {
+    align-self: flex-start;
+    height: auto;
+    padding: 8px 15px;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 30px;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(25px);
+    backdrop-filter: blur(25px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    font-size: 14px;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Соцсети: стеклянная панель с плитками */
+.socials {
+    order: 4;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 8px;
+    border: 0.8px solid rgba(255, 255, 255, 0.75);
+    border-radius: 16px;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(3.6px);
+    backdrop-filter: blur(3.6px);
+    box-shadow: 0 4.8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.social {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 80px;
+    padding: 16px;
+    border: 0.8px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 3.2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.social img { width: 19.23px; height: 19.23px; }
+
+.social span {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.license {
+    order: 5;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.license__thumb {
+    position: relative;
+    flex: none;
+    width: 94px;
+    height: 103px;
+    border-radius: 11px;
+    background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)), rgba(12, 10, 31, 0.4);
+    box-shadow: 0 4.3px 7.2px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+}
+
+.license__thumb img {
+    position: absolute;
+    left: 13.48%;
+    top: 11.41%;
+    width: 73.05%;
+    height: 93.44%;
+    object-fit: cover;
+}
+
+.license__text {
+    white-space: nowrap;   /* строки заданы переносами макета: текст выходит за правый край блока, как в Figma */
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    text-decoration: underline;
+    text-underline-position: from-font;
+}
+
+.footer__docs {
+    order: 7;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 20px;
+}
+
+.footer__docs a {
+    font-size: 12px;
+    line-height: 1.4;
+    letter-spacing: -0.02em;
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 2px;
+    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.footer__docs a:hover { color: var(--color-white); text-decoration-color: currentColor; }
+
+.footer__org {
+    order: 6;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+@media (min-width: 560px) and (max-width: 1199.98px) {
+    .footer__inner { padding: 32px 32px; }
+}
+
+@media (min-width: 1200px) {
+    .footer { border-radius: 48px; }
+
+    .footer__inner {
+        gap: 0;
+        padding: 80px max(64px, calc((100% - var(--grid-max)) / 2));
+    }
+
+    .footer__top {
+        display: flex;
+        flex-wrap: wrap;   /* на узком десктопе (~1200) соцсети уходят под слоган, а не за край контейнера */
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 32px 40px;
+    }
+
+    .footer__brand { display: flex; align-items: flex-start; gap: 35px; }
+
+    .footer__mark { order: 0; width: 98.7px; height: 95px; padding: 0; border-radius: 28.9px; }
+    .footer__slogan { order: 0; width: 454px; margin: 5px 0 0; }
+
+    .socials {
+        order: 0;
+        display: flex;
+        gap: 8px;
+        padding: 8px;
+        flex: none;
+        margin-left: auto;
+    }
+
+    .social { width: 70px; height: 70px; padding: 8px; }
+    .social span { font-size: 11px; }
+
+    .footer__rule { order: 0; width: auto; margin: 43px 0 40px; }
+
+    .footer__bottom {
+        display: grid;
+        grid-template-columns: calc(50% + 5px) minmax(0, 1fr) minmax(0, 1fr);   /* курсы и контакты — в правой половине сетки */
+        align-items: start;
+    }
+
+    .footer__legal { display: flex; flex-direction: column; gap: 32px; width: 387px; max-width: 100%; }
+    .footer__cols { display: contents; }
+
+    .license { order: 0; gap: 16px; }
+    .license__text { font-size: 16px; }
+    .footer__org { margin-bottom: -4.8px; }
+    .license__thumb { width: 118px; height: 130px; border-radius: 13.6px; }
+    .footer__org { order: 0; }
+
+    .footer__col { gap: 20px; }
+    .footer__courses .footer__links { gap: 7px; }
+    .footer__links { font-size: 14px; }
+    .footer__contacts { gap: 30px; }
+    .footer__block { gap: 20px; }
+}

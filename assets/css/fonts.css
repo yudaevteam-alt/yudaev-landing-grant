@@ -1,0 +1,12 @@
+/* ==========================================================================
+   Шрифт Inter (самохостинг). Положите файл в assets/fonts/ — см. assets/fonts/README.txt.
+   Семейство называется "Inter Web", чтобы при отсутствии файла работал
+   установленный в системе "Inter", а затем запасные шрифты (см. --font-* в tokens.css).
+   ========================================================================== */
+@font-face {
+    font-family: "Inter Web";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("../fonts/InterVariable.woff2") format("woff2");
+}

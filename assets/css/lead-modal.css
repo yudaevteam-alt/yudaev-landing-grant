@@ -1,0 +1,138 @@
+/* ==========================================================================
+   Поп-ап заявки (<dialog>), макет «Форма – Основная» (27:566 мобильный, 27:686 десктоп).
+   Мобильный — «шторка» снизу на всю ширину, ≥768 — карточка 517px по центру. Подложка — rgba(12, 10, 31, 0.4).
+   Поля, согласие и кнопка — компоненты forms.css / components.css, размеры формы — .lead-form--g из grant.css.
+   Устройство такое же, как у поп-апа в yudaev-landing-static.
+   ========================================================================== */
+
+.lead-modal {
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-navy);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.lead-modal[open] {
+    display: flex;
+    flex-direction: column;
+}
+
+.lead-modal::backdrop { background: rgba(12, 10, 31, 0.4); }
+
+.lead-modal__sheet {
+    position: relative;
+    width: 100%;
+    margin-top: auto;   /* прижата к низу; на низком экране окно прокручивается */
+    padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+    border-radius: 36px 36px 0 0;
+    background: var(--color-white);
+}
+
+.lead-modal__form,
+.lead-modal__done {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.lead-modal__form[hidden],
+.lead-modal__done[hidden] { display: none; }
+
+.lead-modal__head { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+
+.lead-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 16px 0 12px;
+    border-radius: var(--radius-pill);
+    background: var(--color-navy);
+    color: var(--color-white);
+    font-size: 16px;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+}
+
+.lead-badge__dot { width: 10px; height: 10px; border-radius: 50%; background: var(--color-lime); }
+
+.lead-modal__title {
+    font-size: 28px;
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    color: var(--color-navy);
+    outline: none;   /* на заголовок переводится фокус при открытии, рамка не нужна */
+}
+
+.lead-modal__text {
+    margin-top: -4px;   /* 16 между плашкой и заголовком, 12 между заголовком и текстом */
+    font-size: 12px;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    color: var(--text-grey);
+}
+
+.lead-modal .lead-form--g { gap: 24px; }
+
+.consent--modal { font-size: 12px; align-items: center; gap: 8px; }
+.consent--modal .consent__box { width: 28px; height: 28px; background-size: 24px 24px; }
+
+.lead-modal__btn { height: 60px; padding: 6px 8px; font-size: 14px; letter-spacing: -0.04em; }
+
+.lead-modal__close {
+    position: absolute;
+    top: 20px;
+    right: 21px;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--color-surface);
+}
+
+.lead-modal__close img { width: 12.46px; height: 12.46px; }
+
+/* Форма отправлена */
+.lead-modal__done { gap: 16px; padding-top: 4px; }
+.lead-modal__done .lead-modal__text { margin-top: 0; }
+.lead-modal__done .btn { margin-top: 16px; }
+
+@media (min-width: 768px) {
+    .lead-modal[open] { padding: 24px; }
+
+    .lead-modal__sheet {
+        width: 517px;
+        margin: auto;
+        padding: 32px;
+        border-radius: var(--radius-lg);
+    }
+
+    .lead-modal__close { top: 20px; right: 21px; }
+    .lead-modal__title { font-size: 32px; }
+    .lead-modal__text { font-size: 14px; }
+    .consent--modal { font-size: 14px; letter-spacing: -0.04em; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    @keyframes sheet-up { from { translate: 0 40px; opacity: 0; } }
+    @keyframes sheet-pop { from { scale: 0.96; opacity: 0; translate: 0 12px; } }
+    @keyframes backdrop-in { from { opacity: 0; } }
+
+    .lead-modal[open] .lead-modal__sheet { animation: sheet-up 0.45s var(--ease-out) both; }
+    .lead-modal[open]::backdrop { animation: backdrop-in 0.3s ease both; }
+
+    @media (min-width: 768px) {
+        .lead-modal[open] .lead-modal__sheet { animation-name: sheet-pop; }
+    }
+}

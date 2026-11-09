@@ -1,0 +1,307 @@
+/* ==========================================================================
+   Переиспользуемые компоненты: container, media/ph, btn, pill, round-btn,
+   dots, slider, logo, section-шапки.
+   ========================================================================== */
+
+/* ---------- Контейнеры ---------- */
+.container {
+    width: min(100% - var(--gutter) * 2, var(--container-max));
+    margin-inline: auto;
+}
+
+.container--outer {
+    width: min(100% - var(--gutter-outer) * 2, var(--container-max));
+}
+
+/* Базовая «карточка-секция» (белая, скруглённая) */
+.section {
+    position: relative;
+    background: var(--color-white);
+    border-radius: var(--section-radius);
+    overflow: clip;
+}
+
+/* ---------- Типографика ---------- */
+.h2 {
+    font-family: var(--font-display);
+    font-size: var(--fs-h2);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: var(--tracking-heading);
+    color: var(--color-navy);
+    text-wrap: balance;
+}
+
+.h2--light {
+    color: var(--color-white);
+}
+
+/* ---------- Медиа-слоты (заглушки этапа 1) ---------- */
+.media {
+    display: block;
+    position: relative;
+    overflow: hidden;
+}
+
+.media--fill {
+    position: absolute;
+    inset: 0;
+}
+
+/* Этап 2: <img class="media__img"> внутри .media — геометрию задаёт контейнер */
+.media__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Визуал, у которого «вес» внизу (арт под текстом): при кропе режем верх */
+.media__img--bottom { object-position: center bottom; }
+
+.ph {
+    background: var(--color-ph);
+}
+
+.ph--mid {
+    background: var(--color-ph-mid);
+}
+
+.ph--dark {
+    background: var(--color-ph-dark);
+}
+
+/* ---------- Логотип ---------- */
+.logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    color: var(--color-ink);
+}
+
+/* Логотип целиком (знак + слово) из спрайта в начале <body>; цвет — currentColor */
+.logo__full {
+    display: block;
+    height: 16px;
+    width: auto;
+    aspect-ratio: 196 / 25;
+    overflow: visible;
+}
+
+/* Отдельный знак «X» (бейдж основателя, футер) */
+.logo__mark {
+    width: 24px;
+    height: 24px;
+    flex: none;
+}
+
+/* ---------- Кнопка-пилюля ---------- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    height: 50px;
+    padding: 6px 4px 6px 20px;
+    border-radius: var(--radius-pill);
+    color: var(--color-navy);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: var(--tracking);
+    white-space: nowrap;
+}
+
+.btn--lime { background: var(--color-lime); }
+.btn--lime-soft { background: var(--color-lime-soft); }
+.btn--white { background: var(--color-white); }
+
+.btn__knob {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 43px;
+    height: 43px;
+    border-radius: 50%;
+    background: var(--color-white);
+    color: var(--color-navy);
+}
+
+.btn__knob .icon { width: 20px; height: 20px; }
+.btn__knob--navy { background: var(--color-navy); color: var(--color-white); }
+.btn__knob--lime { background: var(--color-lime); }
+.btn--white .btn__knob--white { background: var(--color-surface); }
+
+.btn:active { transform: scale(0.99); }
+
+/* Цвет по наведению: белая → зелёная, зелёная → чёрная, чёрный кружок → зелёный. */
+@media (hover: hover) {
+    .btn--white:hover { background: var(--color-lime); }
+    .btn--white:hover .btn__knob { background: var(--color-white); }
+
+    .btn--lime:hover,
+    .btn--lime-soft:hover { background: var(--color-navy); color: var(--color-white); }
+    .btn--lime:hover .btn__knob--navy { background: var(--color-lime); color: var(--color-navy); }
+
+    .arrow-btn:hover { background: var(--color-navy); color: var(--color-white); }
+}
+
+/* Малая кнопка шапки: 41px, круг 34px */
+.btn--sm {
+    height: 41px;
+    gap: 10px;
+    padding: 8px 6px 8px 16px;
+}
+
+.btn--sm .btn__knob { width: 34px; height: 34px; }
+.btn--sm .btn__knob .icon { width: 16px; height: 16px; }
+
+/* Кнопка на всю ширину: подпись по центру оставшегося места, круг справа */
+.btn--stretch { width: 100%; }
+.btn--stretch .btn__label { flex: 1; text-align: center; }
+
+/* Кнопка формы: 60px, круг 43px, отступ 8px */
+.btn--form { height: 60px; padding: 8px; }
+
+/* ---------- Пилюли / чипы ---------- */
+.pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 16px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: var(--tracking);
+    white-space: nowrap;
+}
+
+.pill--outline { border-color: var(--color-line-strong); }
+.pill--outline-soft { border-color: rgba(12, 10, 31, 0.2); }
+.pill--line { border-color: var(--color-line); }
+.pill--lime { background: var(--color-lime-soft); }
+.pill--mint { background: var(--color-mint); color: var(--color-navy); }
+.pill--glass { background: rgba(255, 255, 255, 0.05); color: var(--color-white); padding-left: 12px; gap: 6px; }
+.pill--glass-light { border-color: var(--color-mint); color: var(--color-mint); height: auto; padding: 8px 16px; line-height: 1.4; }
+
+.pill__dot {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-lime);
+}
+
+.pill__dot--lg { width: 9px; height: 9px; }
+
+.pill .icon { width: 18px; height: 18px; }
+
+/* ---------- Круглая кнопка слайдера ---------- */
+.round-btn {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--color-line);
+    color: var(--color-navy);
+}
+
+.round-btn .icon { width: 20px; height: 20px; }
+.round-btn:hover:not(:disabled) { background: rgba(12, 10, 31, 0.16); }
+.round-btn:disabled { color: rgba(12, 10, 31, 0.3); cursor: default; }
+
+.slider-controls { display: flex; gap: 8px; }
+
+/* ---------- Индикатор слайдера ---------- */
+.dots {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dots__item {
+    width: var(--dot-w, 46px);
+    height: 5px;
+    border-radius: var(--radius-pill);
+    background: var(--color-line);
+}
+
+.dots__item.is-active { background: var(--color-navy); }
+
+/* ---------- Слайдер на scroll-snap ---------- */
+.slider {
+    display: flex;
+    gap: var(--slider-gap, 10px);
+    /* Только по горизонтали: по вертикали слайдер не прокручивается (overflow-y: hidden), вертикальный жест на нём
+       всегда прокручивает страницу (touch-action оставляет браузеру оба направления, перехвата нет). */
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: auto;
+    touch-action: pan-x pan-y pinch-zoom;
+    scroll-snap-type: x mandatory;
+    -webkit-user-select: none;
+    user-select: none;
+    scroll-padding-inline: var(--slider-pad, 0px);
+    padding-inline: var(--slider-pad, 0px);
+    scrollbar-width: none;
+}
+
+.slider::-webkit-scrollbar { display: none; }
+
+/* Слайдер можно «взять» мышью и потянуть (main.js); картинки и ссылки внутри не утягиваются как файлы */
+@media (hover: hover) and (pointer: fine) {
+    .slider { cursor: grab; }
+}
+
+.slider :is(img, a) { -webkit-user-drag: none; }
+.slider.is-dragging, .slider.is-dragging * { cursor: grabbing !important; }
+.slider.is-dragging { scroll-snap-type: none; scroll-behavior: auto; }
+
+.slider > * {
+    flex: none;
+    scroll-snap-align: start;
+}
+
+.slider-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+/* ---------- Ссылка-стрелка ---------- */
+.link-arrow {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--color-muted-2);
+}
+
+.link-arrow .icon { width: 12px; height: 12px; }
+.link-arrow:hover { color: var(--color-navy); }
+
+/* ---------- Круглая стрелка-ссылка на плитках ---------- */
+.arrow-btn {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--color-lime);
+    color: var(--color-navy);
+}
+
+.arrow-btn .icon { width: 24px; height: 24px; }
+.arrow-btn:hover { transform: scale(1.05); }
