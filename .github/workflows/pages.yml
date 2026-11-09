@@ -1,0 +1,53 @@
+name: Pages
+
+# Каждый пуш в main выкладывает лендинг на GitHub Pages:
+# https://yudaevteam-alt.github.io/yudaev-landing-grant/
+# Проект без сборки, поэтому выкладывается как есть: index.html и assets/.
+# Пути в разметке относительные (assets/…), так что подпапка адреса не мешает.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Токену нужно читать код и публиковать Pages, больше ничего.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  # Очередь, а не отмена: обрывать выкладку на середине не нужно.
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Ручной запуск с чужой ветки не должен выложить её в боевой адрес.
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Наружу уходит только сайт. README и служебные файлы остаются в репозитории.
+      - name: Папка для выкладки
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          cp -r assets _site/assets
+          touch _site/.nojekyll
+          echo "Поедет на сервер:"
+          find _site -type f | sort | sed 's/^/  /'
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Выкладка
+        id: deployment
+        uses: actions/deploy-pages@v4
